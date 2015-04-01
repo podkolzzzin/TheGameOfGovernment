@@ -2,13 +2,22 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Resources;
 
 namespace TheGameOfGovernment
 {
     class Program
     {
+	///<summary>
+	/// These colors aren't work well on consoles with white background
+	/// </summary>
+	public static bool IsOutputColorized = false;
+
         static void Main(string[] args)
         {
+	    /// Uncomment one of the following lines to redefine system settings:
+	    //System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo ("en");
+	    //System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo ("ru");
             Game g = Input.Read();
             while(true)
             {
@@ -22,22 +31,21 @@ namespace TheGameOfGovernment
     {
         public static Game Read()
         {
-            Console.Write("Количество товаров: ");
+	    Console.Write(GoG_Resources.GOODS_COUNT);
             int count = Convert.ToInt32(Console.ReadLine());
             List<Goods> goods = new List<Goods>();
             List<Country> countries = new List<Country>();
             for (int i = 0; i < count; i++)
             {
-                Console.BackgroundColor = ConsoleColor.DarkGray;
-                Console.WriteLine("Товар#"+(i+1));
-                Console.BackgroundColor = ConsoleColor.Black;
+		if (Program.IsOutputColorized)
+		    Console.BackgroundColor = ConsoleColor.DarkGray; 
+		string message = string.Format (GoG_Resources.GOOD_WITH_NUM, i + 1);
+		Console.WriteLine(message);
+		if (Program.IsOutputColorized)
+                    Console.BackgroundColor = ConsoleColor.Black;
                 goods.Add(Goods.Input());
                 countries.Add(Country.Input());
             }
-
-
-
-
 
             return new Game(countries) { Goods = goods};
         }
@@ -53,16 +61,14 @@ namespace TheGameOfGovernment
         {
             
             Goods g = new Goods();
-            Console.Write("Название: ");
+	    Console.Write(GoG_Resources.GOOD_NAME);
             g.Name = Console.ReadLine();
 
-            Console.Write("Актуальность: ");
+	    Console.Write(GoG_Resources.GOOD_IMPORTANCE);
             g.Actuality = Convert.ToInt32(Console.ReadLine());
 
-            Console.Write("Цена: ");
+	    Console.Write(GoG_Resources.GOOD_PRICE);
             g.Coast = Convert.ToInt32(Console.ReadLine());
-
-
 
             return g;
             
@@ -78,7 +84,7 @@ namespace TheGameOfGovernment
         public int Spent { get; set; }
         public static Country Input()
         {
-            Console.Write("Начальный бюджет: ");
+	    Console.Write(GoG_Resources.BUDGET_INITIAL);
             
             return new Country() { Money = Convert.ToInt32(Console.ReadLine()) };
         }
@@ -107,7 +113,7 @@ namespace TheGameOfGovernment
 
         public string DayString()
         {
-            return Game.SWL("" + Earned, 4) + Game.SWL("" + Spent, 4) + Game.SWL("" + Money, 4);
+	    return Game.SWL(string.Format("{0}", Earned), 4) + Game.SWL(string.Format("{0}", Spent), 4) + Game.SWL(string.Format("{0}", Money), 4);
         }
 
         public void Buy(Goods g)
@@ -142,8 +148,9 @@ namespace TheGameOfGovernment
 
             if(Day%15==0)
             {
-                Console.BackgroundColor = ConsoleColor.DarkYellow;
-                Console.Write(SWL("", 4));
+		if (Program.IsOutputColorized)
+		    Console.BackgroundColor = ConsoleColor.DarkYellow;
+		Console.Write(SWL(String.Empty, 4));
                 foreach (var g in Goods)
                 {
                     Console.Write(SWL(g.Name, 12));
@@ -152,9 +159,11 @@ namespace TheGameOfGovernment
             }
             Day++;
 
-            Console.BackgroundColor = ConsoleColor.DarkRed;
-            Console.Write(SWL(""+Day, 4));
-            Console.BackgroundColor = ConsoleColor.Black;
+	    if (Program.IsOutputColorized)
+                Console.BackgroundColor = ConsoleColor.DarkRed;
+	    Console.Write(SWL(String.Format("{0}", Day), 4));
+	    if (Program.IsOutputColorized)
+                Console.BackgroundColor = ConsoleColor.Black;
             foreach(var c in Countries)
                 Console.Write(c.DayString());
 
